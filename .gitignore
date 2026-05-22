@@ -71,3 +71,7 @@ crashlytics-build.properties
 
 # macOS
 .DS_Store
+
+# Artefacts du Performance Testing package (regénérés)
+/[Aa]ssets/[Rr]esources/PerformanceTestRun*.json
+/[Aa]ssets/[Rr]esources/PerformanceTestRun*.json.meta
