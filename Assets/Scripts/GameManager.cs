@@ -33,7 +33,6 @@ namespace MathsClass
         [Header("Tuning global")]
         public int comboThreshold = 3;
         public int bonusLifeEvery = 10;
-        public int maxLives = 5;
         public float interRoundDelay = 0.4f;
 
         // ----- État runtime -----
@@ -41,6 +40,7 @@ namespace MathsClass
         ModeConfig modeCfg;
         int score;
         int lives;
+        int lifeCap;        // plafond de vies = nombre de cœurs affichables dans le HUD
         int correctCount;
         int answeredCount;
         int combo;
@@ -118,10 +118,16 @@ namespace MathsClass
             lives = modeCfg.startingLives;
             timeLeft = modeCfg.startTime * modeCfg.timeMultiplier;
 
+            // Plafond de vies = nombre de cœurs réellement affichables dans le HUD.
+            // Sans ça, une vie bonus peut dépasser le nombre de cœurs : on perd alors
+            // une vie « invisible » et aucun cœur ne disparaît à l'écran.
+            int heartSlots = (hud != null && hud.hearts != null) ? hud.hearts.Length : 3;
+            lifeCap = Mathf.Min(modeCfg.startingLives, heartSlots);
+
             if (hudGroup) { hudGroup.alpha = 1; hudGroup.blocksRaycasts = true; }
             if (hud)
             {
-                hud.maxHearts = Mathf.Min(modeCfg.startingLives, hud.hearts != null ? hud.hearts.Length : 3);
+                hud.maxHearts = lifeCap;
                 hud.SetScore(0);
                 hud.SetLives(lives, hud.maxHearts);
                 hud.SetCombo(0, comboThreshold);
@@ -245,7 +251,7 @@ namespace MathsClass
             if (modeCfg != null && !modeCfg.noTimer)
                 timeLeft += TimeBonusForTier(tier);
             // bonus vie tous les N points
-            if (bonusLifeEvery > 0 && score > 0 && score % bonusLifeEvery == 0 && lives < maxLives && !modeCfg.unlimitedLives)
+            if (bonusLifeEvery > 0 && score > 0 && score % bonusLifeEvery == 0 && lives < lifeCap && !modeCfg.unlimitedLives)
                 lives++;
 
             if (hud)
